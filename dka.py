@@ -1,8 +1,9 @@
 __author__ = 'stepan'
 
 
-import arguments
 import sys
+import arguments
+import parser
 
 
 def main():
@@ -17,6 +18,11 @@ def main():
         print("napoveda\n")
         sys.exit(0)
 
-    args.__str__()
+    try:
+        par = parser.Parser()
+
+    except ValueError as e:
+        sys.stderr.write(e.args[0] + "\n")
+        sys.exit(e.args[1])
 
 main()
