@@ -1,7 +1,9 @@
 __author__ = 'stepan'
 
 
-import arguments,sys
+import arguments
+import sys
+
 
 def main():
     try:

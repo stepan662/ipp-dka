@@ -35,6 +35,7 @@ class Arguments():
                 arguments[o] = a
             else:
                 raise ValueError("Double option " + o, 1)
+
         if "help" in arguments:
             if len(arguments) == 1:
                 self.help = True
@@ -72,4 +73,4 @@ class Arguments():
             self.i = True
 
     def __str__(self):
-        print("<Arguments\n", self.help, "\n", self.input, "\n", self.output, "\n", self.e, "\n", self.d, "\n", self.i, "\n>")
+        print('<Arguments\n', self.help, "\n", self.input, '\n', self.output, "\n", self.e, "\n", self.d, "\n", self.i, "\n>")
