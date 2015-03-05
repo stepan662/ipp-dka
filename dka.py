@@ -20,9 +20,12 @@ def main():
 
     try:
         par = parser.Parser()
+        automat = par.getAutomat()
 
     except ValueError as e:
         sys.stderr.write(e.args[0] + "\n")
         sys.exit(e.args[1])
+
+
 
 main()

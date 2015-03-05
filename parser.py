@@ -12,11 +12,11 @@ class Parser:
     def __init__(self):
         self.index = 0
         self.str = "{" \
-                   "{a,b,c}," \
-                   "{'i', 'j', 'k'}," \
-                   "{a'i' -> b, b'j' -> c, c'k' -> a}," \
-                   "a," \
-                   "{a, b,c}" \
+                   "{s,q1,q2,f}," \
+                   "{'a', 'b', 'c'}," \
+                   "{s'a' -> s, s'' -> q1, q1'b' -> q1, q1'b' -> f, s'' -> q2, q2'c' -> q2, q2'c' -> f, f'a' -> f}," \
+                   "s," \
+                   "{f}" \
                    "}"
 
         self.aut = automat.Automat()
@@ -70,6 +70,15 @@ class Parser:
         self.tShould(token, ['}'])
         token = self.getToken()
         self.tShould(token, [''])
+
+        print(self.aut)
+
+        self.aut.dropERules()
+
+        print(self.aut)
+
+    def getAutomat(self):
+        return self.aut
 
 
 
@@ -141,7 +150,7 @@ class Parser:
         for ch in types:
             if ch == token.type:
                 return
-        raise ValueError("Syntax error: unexpected token type: '" + token.type + "'")
+        raise ValueError("Syntax error: unexpected token type: '" + token.type + "'", 40)
 
     def getToken(self):
         ch = self.getChar()
@@ -183,7 +192,15 @@ class Parser:
                 if ch is not '\'':
                     str += ch
                 else:
+                    state = 'gotApostrof'
+
+            elif state == 'gotApostrof':
+                if ch is not '\'':
+                    self.ungetChar()
                     return Token('str', str)
+                else:
+                    str+= '\''
+                    state = 'string'
 
             elif state == 'id':
                 if self.isIdBegin(ch) or (ord('0') <= ord(ch) <= ord('9')):
