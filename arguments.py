@@ -1,3 +1,4 @@
+# -- coding: utf-8 --
 __author__ = 'stepan'
 
 import getopt, sys
@@ -11,15 +12,17 @@ class Arguments():
         self.e = False
         self.d = False
         self.i = False
+        self.analyze = False
+
+        del args_in[0]
 
         arguments = dict()
         longArgs = {"help": "help", "input": "input", "output": "output", "no-epsilon-rules": "e",
-                    "determinization": "d",
-                    "case-insensitive": "i"}
+                    "determinization": "d", "case-insensitive": "i", "analyze-string": "analyze"}
         try:
             opts, args = getopt.getopt(args_in, "edi",
                                        ["help", "input=", "output=", "no-epsilon-rules", "determinization",
-                                        "case-insensitive"])
+                                        "case-insensitive", "analyze-string="])
         except getopt.GetoptError as err:
             raise ValueError("Unknown option", 1)
 
@@ -45,7 +48,7 @@ class Arguments():
         if "input" in arguments:
             fileName = arguments["input"]
             try:
-                self.input = open(fileName, "r")
+                self.input = open(fileName, "r", encoding="utf-8")
             except IOError as e:
                 raise ValueError("Can't open input file", 2)
         else:
@@ -54,7 +57,7 @@ class Arguments():
         if "output" in arguments:
             fileName = arguments["output"]
             try:
-                self.output = open(fileName, "w")
+                self.output = open(fileName, "w", encoding="utf-8")
             except IOError as e:
                 raise ValueError("Can't open output file", 2)
         else:
@@ -68,6 +71,13 @@ class Arguments():
                 raise ValueError("Combination of -e and -d is not allowed", 1)
             else:
                 self.d = True
+
+        if "analyze" in arguments:
+            if self.e or self.d:
+                raise ValueError("Combination of -e or -d with --analyze-string is not allowed", 1)
+            else:
+                self.analyze = arguments["analyze"]
+
 
         if "i" in arguments:
             self.i = True

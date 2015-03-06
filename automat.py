@@ -1,7 +1,9 @@
+# -- coding: utf-8 --
 __author__ = 'stepan'
 
 import state
 import copy
+
 
 class Automat:
     def __init__(self):
@@ -45,9 +47,10 @@ class Automat:
     def setStart(self, name):
         if not self._start:
             try:
-                self._start = self._states[name]
+                self._states[name]
+                self._start = name
             except:
-                raise ValueError("Setting start to undefined state'" + name + "'", 40)
+                raise ValueError("Setting start to undefined state'" + name + "'", 41)
         else:
             raise ValueError("Double setting start state", 40)
 
@@ -88,25 +91,131 @@ class Automat:
                     self._states[p].setTerm(True)
             self._states[p].dropERules()
 
-    def __str__(self):
+    def determinate(self):
+        Qnew = {}
+        Qnew[self._start] = True
+        aut = Automat()
+        aut._alphabet = copy.deepcopy(self._alphabet)
+        aut._start = self._start
+        aut.addState(self._start)
 
-        ret = ''
+        while True:
+            #vezmeme stav z fronty
+            state, value = Qnew.popitem()
+            origStates = state.split("_")
+            origRules = {}
+            for origState in origStates:
+                #prochazime originalni stavy, ze kterych je tento slozeny
+                orgChars = self._states[origState].getAllRules()
+                for char in orgChars:
+                    origRules[char] = []
+                    for target in orgChars[char]:
+                        #ziskaveme vsechna pravidla z puvodnich stavu
+                        if target not in origRules[char]:
+                            origRules[char].append(target)
 
-        #dict = sorted(self._states.items(), key=lambda t: t[0])
-        #for w in dict:
-        #    ret += w[0] + "\n"
 
-        for state in sorted(self._states.items(), key=lambda t: t[0]):
-            if state[1].isTerm():
-                ret += "\t"+state[0] + "(terminating)\n"
+            for char in origRules:
+                targets = origRules[char]
+                #vytvorime jmeno noveho stavu
+                newState = '_'.join(sorted(targets))
+                if newState not in aut._states:
+                    #pridame novy stav do automatu a do zasobniku, pokud tam neni
+                    aut.addState(newState)
+                    Qnew[newState] = True
+
+                #pridame pravidlo, ktere ukazuje na novy stav
+                aut.addRule(state, char, newState)
+                isTerm = False
+                for target in targets:
+                    if self._states[target].isTerm():
+                        isTerm = True
+
+                if isTerm:
+                    #pokud byl nektery stav finalni, tak i novy je finalni
+                    aut.setTerminating(newState)
+
+            if len(Qnew) == 0:
+                #zasobnik je prazdny, vyskocime z cyklu
+                break
+
+        self._states = aut._states
+        self._term = aut._term
+
+    def analyzeString(self, string):
+        state = self._start
+
+        for char in string:
+            rules = self._states[state].getRules(char)
+            if len(rules) == 1:
+                state = rules[0]
             else:
-                ret += "\t"+state[0] + "\n"
+                if char in self._alphabet:
+                    return 0
+                else:
+                    raise ValueError("Character '" + char + "' is not acceptable", 1)
+                    return 0
 
-            rChars = state[1].getAllRules()
-            for rules in rChars:
-                for rule in rChars[rules]:
-                    ret += "\t\t'"+rules+"'\t-> "+ rule + "\n"
-        return ret
+        if self._states[state].isTerm():
+            return 1
+        else:
+            return 0
 
 
 
+
+    def __str__(self):
+        ret = '(\n'
+
+        states = sorted(self._states.items(), key=lambda t: t[0])
+        alphabet = sorted(self._alphabet.items(), key=lambda t: t[0])
+
+        ret += "{"
+        i = 0
+
+        for state in states:
+            if i is not 0:
+                ret += ", "
+            ret += state[0]
+            i+=1
+
+
+        ret += "}\n{"
+        i=0
+
+        for char in alphabet:
+            if i is not 0:
+                ret += ", "
+            ret += "'" + char[0] + "'"
+            i+=1
+
+        ret += "}\n{\n"
+        i=0
+
+        for state in states:
+            keys = state[1].getAllRules()
+            keys = sorted(keys.items(), key=lambda t: t[0])
+            for key in keys:
+                rules = sorted(key[1])
+                for rule in rules:
+                    if i != 0:
+                        ret+= ",\n"
+                    ret+= state[0] + " '" + key[0] + "' -> " + rule
+                    i+=1
+
+        ret += "\n}\n"
+        ret += self._start + ",\n"
+
+        ret += "{"
+        i=0
+        for state in states:
+            if state[1].isTerm():
+                if i is not 0:
+                    ret += ", "
+                ret += state[0]
+                i+=1
+        ret += "}\n"
+
+
+
+        return ret + ")"

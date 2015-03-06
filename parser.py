@@ -1,3 +1,4 @@
+# -- coding: utf-8 --
 __author__ = 'stepan'
 
 import automat
@@ -9,21 +10,15 @@ class Token:
 
 
 class Parser:
-    def __init__(self):
+    def __init__(self, input):
         self.index = 0
-        self.str = "{" \
-                   "{s,q1,q2,f}," \
-                   "{'a', 'b', 'c'}," \
-                   "{s'a' -> s, s'' -> q1, q1'b' -> q1, q1'b' -> f, s'' -> q2, q2'c' -> q2, q2'c' -> f, f'a' -> f}," \
-                   "s," \
-                   "{f}" \
-                   "}"
+        self.str = input
 
         self.aut = automat.Automat()
 
         # cekame dve oteveraci slozene zavorky
         token = self.getToken()
-        self.tShould(token, ['{'])
+        self.tShould(token, ['('])
         token = self.getToken()
         self.tShould(token, ['{'])
 
@@ -67,15 +62,11 @@ class Parser:
 
         # cekame konec oteviraci zavorky a konec
         token = self.getToken()
-        self.tShould(token, ['}'])
+        self.tShould(token, [')'])
         token = self.getToken()
         self.tShould(token, [''])
 
-        print(self.aut)
-
-        self.aut.dropERules()
-
-        print(self.aut)
+        #print(self.aut)
 
     def getAutomat(self):
         return self.aut
