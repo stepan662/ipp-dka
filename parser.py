@@ -227,8 +227,6 @@ class Parser:
             return True
         elif ord('A') <= ord(ch) <= ord('Z'):
             return True
-        elif ch == '_':
-            return True
         else:
             return False
 

@@ -28,11 +28,11 @@ class Automat:
         try:
             st = self._states[state]
         except:
-            raise ValueError("Undefined state '" + state + "'", 40)
+            raise ValueError("Undefined state '" + state + "'", 41)
         try:
             self._states[target]
         except:
-            raise ValueError("Undefined state '" + target + "'", 40)
+            raise ValueError("Undefined state '" + target + "'", 41)
 
         #print("Adding rule to state '" + state + "': '" + char + "' -> '" + target + "'")
         if char == '':
@@ -41,7 +41,7 @@ class Automat:
             try:
                 self._alphabet[char]
             except:
-                raise ValueError("Undefined character '" + char + "'", 40)
+                raise ValueError("Undefined character '" + char + "'", 41)
             st.addRule(char, target)
 
     def setStart(self, name):
@@ -52,7 +52,7 @@ class Automat:
             except:
                 raise ValueError("Setting start to undefined state'" + name + "'", 41)
         else:
-            raise ValueError("Double setting start state", 40)
+            raise ValueError("Double setting start state", 41)
 
         #print("Setting start state to '" + name + "'")
 
@@ -60,7 +60,7 @@ class Automat:
         try:
             state = self._states[name]
         except:
-            raise ValueError("Undefined terminating state '" + name + "'", 40)
+            raise ValueError("Undefined terminating state '" + name + "'", 41)
 
         #print("Setting state '" + name + "' to terminating")
         state.setTerm(True)
@@ -161,6 +161,9 @@ class Automat:
         else:
             return 0
 
+    def getAlphabet(self):
+        return self._alphabet
+
 
 
 
@@ -186,10 +189,16 @@ class Automat:
         for char in alphabet:
             if i is not 0:
                 ret += ", "
-            ret += "'" + char[0] + "'"
+
+            if char[0] == "'":
+                ch = "''"
+            else:
+                ch = char[0]
+
+            ret += "'" + ch + "'"
             i+=1
 
-        ret += "}\n{\n"
+        ret += "}\n{"
         i=0
 
         for state in states:
@@ -200,7 +209,15 @@ class Automat:
                 for rule in rules:
                     if i != 0:
                         ret+= ",\n"
-                    ret+= state[0] + " '" + key[0] + "' -> " + rule
+                    else:
+                        ret+= "\n"
+
+                    if key[0] == "'":
+                        k = "''"
+                    else:
+                        k = key[0]
+
+                    ret+= state[0] + " '" + k + "' -> " + rule
                     i+=1
 
         ret += "\n}\n"
