@@ -108,7 +108,8 @@ class Automat:
                 #prochazime originalni stavy, ze kterych je tento slozeny
                 orgChars = self._states[origState].getAllRules()
                 for char in orgChars:
-                    origRules[char] = []
+                    if char not in origRules:
+                        origRules[char] = []
                     for target in orgChars[char]:
                         #ziskaveme vsechna pravidla z puvodnich stavu
                         if target not in origRules[char]:
@@ -183,7 +184,7 @@ class Automat:
             i+=1
 
 
-        ret += "}\n{"
+        ret += "},\n{"
         i=0
 
         for char in alphabet:
@@ -198,7 +199,7 @@ class Automat:
             ret += "'" + ch + "'"
             i+=1
 
-        ret += "}\n{"
+        ret += "},\n{"
         i=0
 
         for state in states:
@@ -220,7 +221,7 @@ class Automat:
                     ret+= state[0] + " '" + k + "' -> " + rule
                     i+=1
 
-        ret += "\n}\n"
+        ret += "\n},\n"
         ret += self._start + ",\n"
 
         ret += "{"
