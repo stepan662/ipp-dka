@@ -71,7 +71,7 @@ class Automat:
         Qtmp = copy.deepcopy(Q)
         while True:
             for st in Qtmp:
-                if Q[st] is False:
+                if Q[st] == False:
                     for tran in self._states[st].getRules(''):
                         Q[tran] = False
                     Q[st] = True
@@ -178,7 +178,7 @@ class Automat:
         i = 0
 
         for state in states:
-            if i is not 0:
+            if i != 0:
                 ret += ", "
             ret += state[0]
             i+=1
@@ -188,7 +188,7 @@ class Automat:
         i=0
 
         for char in alphabet:
-            if i is not 0:
+            if i != 0:
                 ret += ", "
 
             if char[0] == "'":
@@ -228,7 +228,7 @@ class Automat:
         i=0
         for state in states:
             if state[1].isTerm():
-                if i is not 0:
+                if i != 0:
                     ret += ", "
                 ret += state[0]
                 i+=1

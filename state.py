@@ -38,7 +38,7 @@ class State:
         # prida do pravidla, ktera nejsou epsilonova
         rules = copy.deepcopy(rules)
         for char in rules:
-            if char is not '':
+            if char != '':
                 for target in rules[char]:
                     self.addRule(char, target)
 

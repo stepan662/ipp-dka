@@ -36,7 +36,7 @@ def main():
         sys.stderr.write("Alphabet is empty.\n")
         sys.exit(41)
 
-    if args.analyze is False:
+    if args.analyze == False:
         if args.e:
             automat.dropERules()
         elif args.d:

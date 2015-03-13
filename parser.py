@@ -13,8 +13,16 @@ class Parser:
     def __init__(self, input):
         self.index = 0
         self.str = input
+        self.line = 1
 
         self.aut = automat.Automat()
+
+        #token = self.getToken()
+        #while token.type != '':
+        #    print("token: '" + token.type + "'")
+        #    token = self.getToken()
+
+        #exit()
 
         # cekame dve oteveraci slozene zavorky
         token = self.getToken()
@@ -47,7 +55,7 @@ class Parser:
         token = self.getToken()
         self.tShould(token, [','])
         token = self.getToken()
-        if token.type is not 'id':
+        if token.type != 'id':
             raise ValueError("Missing start state", 40)
         else:
             self.aut.setStart(token.string)
@@ -75,7 +83,9 @@ class Parser:
 
     def states(self):
         token = self.getToken()
-        while token.type is not '}':
+        if token.type == '}':
+            return
+        while token.type != '':
             self.tShould(token, ['id'])
             self.aut.addState(token.string)
             token = self.getToken()
@@ -83,11 +93,13 @@ class Parser:
             if token.type == ',':
                 token = self.getToken()
             else:
-                break
+                return
 
     def alphabet(self):
         token = self.getToken()
-        while token.type is not '}':
+        if token.type == '}':
+            return
+        while token.type != '':
             self.tShould(token, ['str'])
             self.aut.addAlpha(token.string)
             token = self.getToken()
@@ -95,11 +107,13 @@ class Parser:
             if token.type == ',':
                 token = self.getToken()
             else:
-                break
+                return
 
     def rules(self):
         token = self.getToken()
-        while token.type is not '}':
+        if token.type == '}':
+            return
+        while token.type != '':
             self.tShould(token, ['id'])
             state = token.string
 
@@ -121,11 +135,13 @@ class Parser:
             if token.type == ',':
                 token = self.getToken()
             else:
-                break
+                return
 
     def terminating(self):
         token = self.getToken()
-        while token.type is not '}':
+        if token.type == '}':
+            return
+        while token.type != '':
             self.tShould(token, ['id'])
             self.aut.setTerminating(token.string)
             token = self.getToken()
@@ -133,7 +149,7 @@ class Parser:
             if token.type == ',':
                 token = self.getToken()
             else:
-                break
+                return
 
 
 
@@ -141,21 +157,24 @@ class Parser:
         for ch in types:
             if ch == token.type:
                 return
-        raise ValueError("Syntax error: unexpected token type: '" + token.type + "'", 40)
+        raise ValueError("Syntax error: unexpected token type: '" + token.type + "', expecting "+types.__str__()+" on line " + self.line.__str__(), 40)
 
     def getToken(self):
         ch = self.getChar()
         state = 'begin'
         str = ''
-        while ch is not False:
+        while ch != False:
+            #print(self.line.__str__() + ": " + state + " '" + ch + "'")
+
             if state == 'begin':
                 if ch.isspace():
-                    pass
+                    if ch == '\n':
+                        self.line += 1
                 elif ch == '#':
                     state = 'comment'
                 elif ch == '-':
                     state = 'arrow'
-                elif ch == '\'':
+                elif ch == "'":
                     state = 'string'
                 elif ch == '{':
                     return Token('{', '')
@@ -180,17 +199,17 @@ class Parser:
                     raise ValueError("Unexpected character", 40)
 
             elif state == 'string':
-                if ch is not '\'':
+                if ch != "'":
                     str += ch
                 else:
                     state = 'gotApostrof'
 
             elif state == 'gotApostrof':
-                if ch is not '\'':
+                if ch != "'":
                     self.ungetChar()
                     return Token('str', str)
                 else:
-                    str+= '\''
+                    str+= "'"
                     state = 'string'
 
             elif state == 'id':
