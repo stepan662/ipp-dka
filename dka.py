@@ -51,7 +51,7 @@ def main():
         automat.dropERules()
         automat.determinate()
         try:
-            print(automat.analyzeString(args.analyze))
+            args.output.write(automat.analyzeString(args.analyze).__str__())
         except ValueError as e:
             sys.stderr.write(e.args[0] + "\n")
             sys.exit(e.args[1])
