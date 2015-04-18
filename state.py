@@ -4,13 +4,15 @@ __author__ = 'stepan'
 
 import copy
 
+# reprezentuje jeden stav - obsahuje odkazy na dalsi pravidla a info, jestli je ukoncujici
 class State:
 
+    # inicializace a pojmenovani stavu
     def __init__(self, name):
-        # inicializace a pojmenovani stavu
         self._term = False
         self._rules = {}
 
+    # prida do stavu odkaz na dalsi stav
     def addRule(self, char, state):
         if char in self._rules:
             if state not in self._rules[char]:
@@ -18,31 +20,33 @@ class State:
         else:
             self._rules[char] = [state]
 
+    # nastavi, ukoncujici stav
     def setTerm(self, value):
         self._term = value
 
+    # vraci informaci, jestli je ukoncujici
     def isTerm(self):
         return self._term
 
+    # vrati asociativni pole poli prechodu
     def getAllRules(self):
-        # vrati asociativni pole poli prechodu
         return self._rules;
 
+    # vrati pravidla pro urcity znak
     def getRules(self, char):
-        # vrati pravidla pro urcity znak
         if char in self._rules:
             return self._rules[char]
         else:
             return []
 
+    # prida do pravidla, ktera nejsou epsilonova
     def addNonERules(self, rules):
-        # prida do pravidla, ktera nejsou epsilonova
         rules = copy.deepcopy(rules)
         for char in rules:
             if char != '':
                 for target in rules[char]:
                     self.addRule(char, target)
 
+    # odstrani epsilon pravidla
     def dropERules(self):
         if '' in self._rules: del self._rules['']
-

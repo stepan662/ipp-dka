@@ -4,6 +4,7 @@ __author__ = 'stepan'
 
 import automat
 
+# struktura token - obsahuje typ tokenu a string (vyuziva se u identifikatoru)
 class Token:
     def __init__(self, type, string):
         self.type = type
@@ -16,14 +17,8 @@ class Parser:
         self.str = input
         self.line = 1
 
+        # vytvorime prazdny automat
         self.aut = automat.Automat()
-
-        #token = self.getToken()
-        #while token.type != '':
-        #    print("token: '" + token.type + "'")
-        #    token = self.getToken()
-
-        #exit()
 
         # cekame dve oteveraci slozene zavorky
         token = self.getToken()
@@ -77,15 +72,16 @@ class Parser:
 
         #print(self.aut)
 
+    # vraci vytvoreny automat
     def getAutomat(self):
         return self.aut
 
 
-
+    # nacte vsechny stavy do automatu
     def states(self):
         token = self.getToken()
         if token.type == '}':
-            return
+            return  # stavy jsou prazdne
         while token.type != '':
             self.tShould(token, ['id'])
             self.aut.addState(token.string)
@@ -96,10 +92,11 @@ class Parser:
             else:
                 return
 
+    # nacte abecedu do automatu
     def alphabet(self):
         token = self.getToken()
         if token.type == '}':
-            return
+            return  # abeceda je prazdna
         while token.type != '':
             self.tShould(token, ['str'])
             self.aut.addAlpha(token.string)
@@ -110,27 +107,34 @@ class Parser:
             else:
                 return
 
+    # nacte vsechny pravidla do automatu
     def rules(self):
         token = self.getToken()
         if token.type == '}':
-            return
+            return  # pravidla jsou prazdna
+
         while token.type != '':
+            # ocekavame id zdrojoveho stavu
             self.tShould(token, ['id'])
             state = token.string
 
+            # ocekavame znak
             token = self.getToken()
             self.tShould(token, ['str'])
             char = token.string
 
+            # ocekavame sipku
             token = self.getToken()
             self.tShould(token, ['->'])
 
+            # ocekavame id ciloveho stavu
             token = self.getToken()
             self.tShould(token, ['id'])
             target = token.string
 
             self.aut.addRule(state, char, target)
 
+            # ocekavame carku nebo zavorku - pak koncime nebo jedeme znovu
             token = self.getToken()
             self.tShould(token, [',', '}'])
             if token.type == ',':
@@ -138,6 +142,7 @@ class Parser:
             else:
                 return
 
+    # nacte vsechny ukoncujici stavy
     def terminating(self):
         token = self.getToken()
         if token.type == '}':
@@ -153,24 +158,28 @@ class Parser:
                 return
 
 
-
+    # pomocna funkce, ktera kontrojuje, jestli byl token ocekavaneho typu
+    # v pripade ze ne, rovnou vypisuje chybu
     def tShould(self, token, types):
         for ch in types:
             if ch == token.type:
                 return
-        raise ValueError("Syntax error: unexpected token type: '" + token.type + "', expecting "+types.__str__()+" on line " + self.line.__str__(), 40)
+        raise ValueError("Syntax error: unexpected token type: '" + token.type
+                         + "', expecting " + types.__str__()
+                         + " on line " + self.line.__str__(), 40)
 
+    # nacte dalsi token
     def getToken(self):
         ch = self.getChar()
         state = 'begin'
         str = ''
         while ch != False:
-            #print(self.line.__str__() + ": " + state + " '" + ch + "'")
 
+            # pocatecni stav automatu, preskakujeme bile znaky
             if state == 'begin':
                 if ch.isspace():
                     if ch == '\n':
-                        self.line += 1
+                        self.line += 1      # pocitame radky, abychom mohli lepe vypisovat chyby
                 elif ch == '#':
                     state = 'comment'
                 elif ch == '-':
@@ -191,28 +200,32 @@ class Parser:
                     str += ch
                     state = 'id'
                 else:
-                    raise ValueError("Unexpected character '" + ch + "'", 40)
+                    raise ValueError("Unexpected character '" + ch + "' (line " + self.line.__str__() + ")", 40)
 
+            # ocekavame dokonceni sipky znakem >
             elif state == 'arrow':
                 if ch == '>':
                     return Token('->', '')
                 else:
-                    raise ValueError("Unexpected character", 40)
+                    raise ValueError("Unexpected character '" + ch + "' (line " + self.line.__str__() + ")", 40)
 
+            # ocekavame vnitrek retezce
             elif state == 'string':
                 if ch != "'":
                     str += ch
                 else:
                     state = 'gotApostrof'
 
+            # nacetli jsme apostrof uprostred retezce
             elif state == 'gotApostrof':
                 if ch != "'":
                     self.ungetChar()
                     return Token('str', str)
                 else:
-                    str+= "'"
+                    str += "'"
                     state = 'string'
 
+            # ocekavame c like id
             elif state == 'id':
                 if self.isIdBegin(ch) or (ord('0') <= ord(ch) <= ord('9')):
                     str += ch
@@ -220,20 +233,24 @@ class Parser:
                     self.ungetChar()
                     return Token('id', str)
 
+            # komentar - preskakujeme do konce radku
             elif state == 'comment':
                 if ch == '\n':
                     state = 'begin'
 
             ch = self.getChar()
 
+        # vracime prazdny token, v pripade, ze soubor skoncil
         return Token('', '')
 
+    # vrati znak zpatky na vstup
     def ungetChar(self):
         if self.index > 0:
             self.index -= 1
         else:
             raise ValueError("Nothing to unget", 40)
 
+    # nacte jeden znak ze vstupu
     def getChar(self):
         if self.index < len(self.str):
             ch = self.str[self.index]
@@ -242,6 +259,7 @@ class Parser:
         else:
             return False
 
+    # kontroluje, jestli jde o znak, ktery se muze vyskytovat na zactaku c like id
     def isIdBegin(self, ch):
         if ord('a') <= ord(ch) <= ord('z'):
             return True

@@ -2,10 +2,11 @@
 __author__ = 'stepan'
 #DKA:xgrana02
 
-import state
 import copy
+import state
 
 
+# reprezentuje automat se vsemi komponentami
 class Automat:
     def __init__(self):
         self._states = {}
@@ -13,18 +14,19 @@ class Automat:
         self._start = False
         self._term = False
 
+    # prida znak do abecedy
     def addAlpha(self, char):
         if len(char) != 1:
             raise ValueError("String '" + char + "' is not character", 40)
 
-        #print("Adding char to alphabet: '" + char + "'")
         self._alphabet[char] = True
 
+    # prida stav, nepridava duplicity
     def addState(self, name):
         if name not in self._states:
             self._states[name] = state.State(name)
-        #    print("Adding state to automat: '" + name + "'")
 
+    # prida pravidlo, konroluje, jestli stavy existuji a jestli je znak v abecede
     def addRule(self, state, char, target):
         try:
             st = self._states[state]
@@ -35,7 +37,6 @@ class Automat:
         except:
             raise ValueError("Undefined state '" + target + "'", 41)
 
-        #print("Adding rule to state '" + state + "': '" + char + "' -> '" + target + "'")
         if char == '':
             st.addRule(char, target)
         else:
@@ -45,6 +46,7 @@ class Automat:
                 raise ValueError("Undefined character '" + char + "'", 41)
             st.addRule(char, target)
 
+    # nastavi pocatecni stav, kontroluje, jestli stav existuje a jestli jiz neni nastaven
     def setStart(self, name):
         if not self._start:
             try:
@@ -55,8 +57,7 @@ class Automat:
         else:
             raise ValueError("Double setting start state", 41)
 
-        #print("Setting start state to '" + name + "'")
-
+    # nastavi stav jako ukoncujici, kontroluje, jestli stav existuje
     def setTerminating(self, name):
         try:
             state = self._states[name]
@@ -66,23 +67,25 @@ class Automat:
         #print("Setting state '" + name + "' to terminating")
         state.setTerm(True)
 
+    # ziska epsilon uzaver daneho stavu
     def getEClose(self, state):
-        Q = {}
-        Q[state] = False
-        Qtmp = copy.deepcopy(Q)
+        Q = {state: False}                   # zasobnik e prechodu, pridame zdrojovy stav
+        Qbefore = copy.deepcopy(Q)              # zasobnik predchozi iterace
         while True:
-            for st in Qtmp:
-                if Q[st] == False:
+            for st in Qbefore:               # prochazime stavy na zasobniku z predchozi iterace
+                if Q[st] == False:           # prechod jeste nebyl prozkouman
                     for tran in self._states[st].getRules(''):
-                        Q[tran] = False
-                    Q[st] = True
+                        if tran not in Q:
+                            Q[tran] = False  # pridame nove stavy do zasobniku a oznacime je jako neprozkoumane
+                    Q[st] = True             # oznacime aktualni stav jako prozkoumany
 
-            if len(Qtmp) == len(Q):
+            if len(Qbefore) == len(Q):       # koncime v pripade, ze nebyly pridany zadne nove stavy
                 break
             else:
-                Qtmp = copy.deepcopy(Q)
+                Qbefore = copy.deepcopy(Q)
         return Q
 
+    # odstrani epsilon pravidla
     def dropERules(self):
         for p in self._states:
             for eRule in self.getEClose(p):
@@ -92,6 +95,7 @@ class Automat:
                     self._states[p].setTerm(True)
             self._states[p].dropERules()
 
+    # provede determinizaci (pred tim musi byt odstraneny epsilon pravidla)
     def determinate(self):
         Qnew = {}
         Qnew[self._start] = True
@@ -144,6 +148,7 @@ class Automat:
         self._states = aut._states
         self._term = aut._term
 
+    # analyzuje retezec, vraci 1 nebo 0
     def analyzeString(self, string):
         state = self._start
 
@@ -162,12 +167,13 @@ class Automat:
         else:
             return 0
 
+    # vraci abecedu - dict
     def getAlphabet(self):
         return self._alphabet
 
 
 
-
+    # vraci automat jako retezec
     def __str__(self):
         ret = '(\n'
 
@@ -233,7 +239,5 @@ class Automat:
                 ret += state[0]
                 i+=1
         ret += "}\n"
-
-
 
         return ret + ")"

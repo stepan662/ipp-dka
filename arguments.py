@@ -2,9 +2,11 @@
 __author__ = 'stepan'
 #DKA:xgrana02
 
-import getopt, sys
+import getopt
+import sys
 
 
+# reprezentuje argumenty skriptu
 class Arguments():
     def __init__(self, args_in):
         self.help = False
@@ -40,12 +42,14 @@ class Arguments():
             else:
                 raise ValueError("Double option " + o, 1)
 
+        # kotrola, jestli je argument help osamoceny
         if "help" in arguments:
             if len(arguments) == 1:
                 self.help = True
             else:
                 raise ValueError("Bad arguments combination", 1)
 
+        # kontrola, jestli soubor input existuje a lze otevrit
         if "input" in arguments:
             fileName = arguments["input"]
             try:
@@ -55,6 +59,7 @@ class Arguments():
         else:
             self.input = sys.stdin
 
+        # kontrola, jestli soubor output lze otevrit
         if "output" in arguments:
             fileName = arguments["output"]
             try:
@@ -67,12 +72,14 @@ class Arguments():
         if "e" in arguments:
             self.e = True
 
+        # kontrola, jestli se nekombinuji argumenty -e a -d
         if "d" in arguments:
             if self.e:
                 raise ValueError("Combination of -e and -d is not allowed", 1)
             else:
                 self.d = True
 
+        # kontrola, jestli se nekombinuji argumenty -e, -d a --analyze-string
         if "analyze" in arguments:
             if self.e or self.d:
                 raise ValueError("Combination of -e or -d with --analyze-string is not allowed", 1)
@@ -82,6 +89,7 @@ class Arguments():
         if "i" in arguments:
             self.i = True
 
+    # vraci argumenty jako retezec
     def __str__(self):
         return '<Arguments\n' + self.help.__str__() + "\n" \
                + self.input.__str__() + '\n' \
