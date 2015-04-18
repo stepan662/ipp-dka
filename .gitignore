@@ -2,3 +2,6 @@ __pycache__/
 .idea/
 /in
 *.pyc
+/is_it_ok.sh
+*~
+*.zip
