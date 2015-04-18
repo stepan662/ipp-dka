@@ -1,12 +1,9 @@
 # -- coding: utf-8 --
-import parser
-
 __author__ = 'stepan'
 #DKA:xgrana02
 
 import sys
-
-from dka import parser
+import parser
 import arguments
 
 

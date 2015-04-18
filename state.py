@@ -8,7 +8,7 @@ import copy
 class State:
 
     # inicializace a pojmenovani stavu
-    def __init__(self, name):
+    def __init__(self):
         self._term = False
         self._rules = {}
 
@@ -39,7 +39,7 @@ class State:
         else:
             return []
 
-    # prida do pravidla, ktera nejsou epsilonova
+    # prida do stavu pravidla, ktera nejsou epsilonova
     def addNonERules(self, rules):
         rules = copy.deepcopy(rules)
         for char in rules:

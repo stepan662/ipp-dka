@@ -12,7 +12,6 @@ class Automat:
         self._states = {}
         self._alphabet = {}
         self._start = False
-        self._term = False
 
     # prida znak do abecedy
     def addAlpha(self, char):
@@ -24,7 +23,7 @@ class Automat:
     # prida stav, nepridava duplicity
     def addState(self, name):
         if name not in self._states:
-            self._states[name] = state.State(name)
+            self._states[name] = state.State()
 
     # prida pravidlo, konroluje, jestli stavy existuji a jestli je znak v abecede
     def addRule(self, state, char, target):
@@ -146,7 +145,6 @@ class Automat:
                 break
 
         self._states = aut._states
-        self._term = aut._term
 
     # analyzuje retezec, vraci 1 nebo 0
     def analyzeString(self, string):
