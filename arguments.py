@@ -1,6 +1,6 @@
 # -- coding: utf-8 --
 __author__ = 'stepan'
-#DKA:xgrana02
+# DKA:xgrana02
 
 import getopt, sys
 
