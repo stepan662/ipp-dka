@@ -79,9 +79,13 @@ class Arguments():
             else:
                 self.analyze = arguments["analyze"]
 
-
         if "i" in arguments:
             self.i = True
 
     def __str__(self):
-        print('<Arguments\n', self.help, "\n", self.input, '\n', self.output, "\n", self.e, "\n", self.d, "\n", self.i, "\n>")
+        return '<Arguments\n' + self.help.__str__() + "\n" \
+               + self.input.__str__() + '\n' \
+               + self.output.__str__() + "\n" \
+               + self.e.__str__() + "\n" \
+               + self.d.__str__() + "\n" \
+               + self.i.__str__() + "\n>"
