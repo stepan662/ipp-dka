@@ -1,5 +1,6 @@
 # -- coding: utf-8 --
 __author__ = 'stepan'
+#DKA:xgrana02
 
 import state
 import copy
@@ -155,7 +156,6 @@ class Automat:
                     return 0
                 else:
                     raise ValueError("Character '" + char + "' is not acceptable", 1)
-                    return 0
 
         if self._states[state].isTerm():
             return 1

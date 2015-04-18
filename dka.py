@@ -1,6 +1,6 @@
 # -- coding: utf-8 --
 __author__ = 'stepan'
-
+#DKA:xgrana02
 
 import sys
 import arguments
@@ -56,7 +56,6 @@ def main():
             sys.stderr.write(e.args[0] + "\n")
             sys.exit(e.args[1])
     sys.exit(0)
-
 
 
 
